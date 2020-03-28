@@ -88,7 +88,6 @@ resource "aws_subnet" "sub_private" {
   }
 }
 
-
 resource "aws_security_group" "sg_public" {
   name        = "sg_devops"
   description = "Allow SSH and HTTP traffic"
@@ -109,6 +108,14 @@ resource "aws_security_group" "sg_public" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
+  ingress {
+    description = "RDS access"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = [var.pub_subnet_cidr]
+  }
 
   egress {
     from_port = 0
@@ -119,6 +126,34 @@ resource "aws_security_group" "sg_public" {
   
   tags = {
     Name = "sg_public"
+  }
+}
+
+# create ELB
+
+resource "aws_elb" "elb" {
+  name = "webserver-elb"
+  subnets = [aws_subnet.sub_public.id]
+  security_groups = [aws_security_group.sg_public.id]
+  internal = false
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    target              = "HTTP:80/"
+    interval            = 30
+  }
+
+  listener {
+    instance_port     = 80
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+  
+  tags = {
+    Name = "webserver-elb"
   }
 }
 
