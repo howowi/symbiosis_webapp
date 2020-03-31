@@ -2,6 +2,6 @@
 Case Study: Symbiosis
 
 ## Architecture Explained
-![Architecture](symbiosis_casestudy.jpg)
+![Architecture](symbiosis_architecture.jpg)
 
 1) bla bla bla
