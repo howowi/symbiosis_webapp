@@ -4,7 +4,7 @@
 
 Based on the high level requirements, basically the client would like to have a highly available and elastic web tier which connects to the highly available managed SQL database. There are 2 ways to implement this solution namely **Traditional** and **Cloud-native**. Let's deep dive into the 2 implementations.
 
-### Traditional Architecture
+### _Traditional Architecture_
 ![Architecture](symbiosis_architecture.jpg)
 
 #### 1) Web
@@ -31,3 +31,15 @@ Based on the high level requirements, basically the client would like to have a 
 1) To prevent unauthorised access to the nodes from both internally and externally, there will be 2 Security Groups to protect the web tier and database tier.
 2) The web tier should only allow HTTP and SSH inbound access and the database should only allow port 3306 (assuming MySQL is used) access from the subnet assigned to the webservers.  
 
+### _Cloud-native Architecture_
+
+In the traditional architecture, each webserver is deployed as individual EC2 instance and this requires tremendous effort from the system adminitrators to take care of the system life cyle, patch management, dependancies etc.. as the application starts to grow indefitely. This will also introduce resource overheads because each EC2 instance will need compute and storage resources to run the OS along with the application itself.
+
+In 2013, Docker was born to strip down the monolithic application into microservices and minimise the dependancies between developers and system administrators. In 2014, Kubernetes was born to manage and orchastrate the microservices at scale and it still remains as the most adopted container orchastrator till date. AWS provides `Elastic Kubernetes Service (EKS)` to help companies to deploy stable Kubernetes clusters on AWS. Although AWS also provides their propiertary `Elastic Container Service (ECS)` without additional costs to host the control plane, most companies would want to avoid vendor lock-in so adopting open source technology will certainly helps to achieve that strategy.
+
+#### Containerised Web service
+
+1) Since the client still prefer a managed SQL database, the design for database tier will remain the same but the Security Group policy need to be changed to allow the Web application pod to access the database across 3 AZs.
+2) EKS will be deployed with multi-AZ master nodes and worker nodes.
+3) Instead of using ELB to route the traffic to the webserver, once the Web deployment is exposed as a Service, the inbuilt Nginx ingress controller will assign an external IP and it will route the traffic to the Web pods.
+4) The web application is a stateless  
