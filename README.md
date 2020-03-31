@@ -39,7 +39,13 @@ In 2013, Docker was born to strip down the monolithic application into microserv
 
 #### Containerised Web service
 
+![Cloud_native](symbiosis_cloud_native.jpg)
+
 1) Since the client still prefer a managed SQL database, the design for database tier will remain the same but the Security Group policy need to be changed to allow the Web application pod to access the database across 3 AZs.
 2) EKS will be deployed with multi-AZ master nodes and worker nodes.
-3) Instead of using ELB to route the traffic to the webserver, once the Web deployment is exposed as a Service, the inbuilt Nginx ingress controller will assign an external IP and it will route the traffic to the Web pods.
-4) The web application is a stateless  
+3) Instead of using ELB to route the traffic to the webserver, once the Web deployment is exposed as a Service, we can make use of the Nginx ingress controller to route the HTTP traffic to the Web pods using the external IP assigned to the service. It's cheaper than using ELB.
+4) The auto scaling of Web pods based on the actual demands will be set up using `Horizontal Pod Autoscaler`in Kubernetes and the traffic will be routed to the pods seamlessly from the Ingress (assumming the proper labels are defined).  
+5) The web application is a stateless application, hence, no Persistent Volume (PV) is required.
+
+## Disclaimer
+The solutions are not implemented to avoid any costs involved for the use of AWS resources and services. 
